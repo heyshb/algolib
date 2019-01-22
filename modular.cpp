@@ -99,10 +99,6 @@ num operator / (const int &l, const num &r) {
     return num(l) / r;
 }
 
-int gcd(int x,int y) {
-    return y==0?x:gcd(y,x%y);
-}
-
 int main() {
     num a,b;
     b = 2;
