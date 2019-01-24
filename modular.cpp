@@ -7,7 +7,7 @@ class num {
 
 public:
     int v;
-    num(){}
+    num(){v = 0;}
     num(int _v):v(_v){}
     int to_int() const{
         return v;

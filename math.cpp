@@ -60,11 +60,33 @@ pll solve(LL A,LL B,LL C) {
     return pll(retx,rety);
 }
 
-int main() {
-    while(true) {
-        LL A,B,C;
-        scanf("%lld%lld%lld",&A,&B,&C);
-        auto ret = solve(A,B,C);
-        printf("%lld %lld\n",ret.first,ret.second);
+//return the solution of equation set {x = a_i (mod m_i)}
+//if no solution, return (-1, -1)
+//else return (a, m)
+//{(2,3),(3,5),(2,7)} --> (23,105)
+pll CRT(vector<pll> eq) {
+    LL a = eq[0].first, m = eq[0].second;
+    for (int i=1;i<eq.size();i++) {
+        LL b = eq[i].first, n = eq[i].second;
+        auto tmp = solve(m, n, b - a);
+        if (tmp.first == -1) {
+            return pll(-1,-1);
+        }
+        a = tmp.first * m + a;
+        m = lcm(n, m);
     }
+    return pll(a,m);
+}
+
+int main() {
+    int N;
+    scanf("%d",&N);
+    vector<pll>v;
+    for (int i=1;i<=N;i++) {
+        LL a,m;
+        scanf("%lld%lld",&a,&m);
+        v.push_back(pll(a,m));
+    }
+    auto ret = CRT(v);
+    printf("%lld %lld\n",ret.first,ret.second);
 }
