@@ -65,6 +65,9 @@ pll solve(LL A,LL B,LL C) {
 //else return (a, m)
 //{(2,3),(3,5),(2,7)} --> (23,105)
 pll CRT(vector<pll> eq) {
+    if (eq.empty()) {
+        return pll(-1,-1);
+    }
     LL a = eq[0].first, m = eq[0].second;
     for (int i=1;i<eq.size();i++) {
         LL b = eq[i].first, n = eq[i].second;
