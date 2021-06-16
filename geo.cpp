@@ -58,7 +58,7 @@ public:
 class cir {
 	point O;
 	flt r;
-}
+};
 
 flt cmp(const point &a, const point &b) { // if (a == b), return 0, else not 0
 		flt at = cmp(a.x,b.x);
@@ -69,9 +69,6 @@ flt sqr(point a) {
 }
 flt length(point a) {
 	return sqrt(sqr(a));
-}
-int cmp_side(const point &a, const point &b) {
-	return sign(cmp(a.x * b.y, ))
 }
 
 int main() {

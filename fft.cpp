@@ -13,7 +13,9 @@ struct Complex {
 
 typedef vector<double> vd;
 const int MAXN = (1 << 20);
-void dft()
+void dft() {
+    
+}
 vd mul(vd a,vd b) {
     int N1,N2;
     N1 = a.size();

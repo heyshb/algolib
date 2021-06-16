@@ -137,3 +137,7 @@ void print(arr hsh) {
         printf("%lld%c",hsh[i],",\n"[i==hsh.size()-1]);
     }
 }
+
+int main() {
+    
+}
