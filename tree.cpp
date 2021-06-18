@@ -76,6 +76,74 @@ struct RootedTree {
     }
 };
 
+struct VirtualTree : RootedTree {
+    int N;
+    vector<int> id; // new_id --> original_id
+    map<int, int> id_map; // original_id --> new_id
+    VirtualTree() {}
+    VirtualTree(vector<int> nodes, RootedTree &T) : RootedTree(nodes.size() * 2 - 1), N(nodes.size() * 2 - 1) {
+        id.assign(N + 1, 0);
+        int m = nodes.size();
+        sort(nodes.begin(), nodes.end(), [&](const int &id1, const int &id2) {
+            return T.dfnL[id1] < T.dfnL[id2];
+        });
+        vector<int> stk(1, 0);
+        //auto dis_function = bind(unweighted_dis, this);
+        auto dis_function = [&](int u, int v) {
+            return T.unweighted_dis(u, v);
+        };
+        auto VT_add_edge = [&](int u, int v) {
+            if (u == 0 || v == 0) return;
+            if (u == v) return;
+            len_type w = dis_function(u, v);
+            u = get_id(u);
+            v = get_id(v);
+            e[u].push_back(pr(w, v));
+            e[v].push_back(pr(w, u));
+        };
+        for (int i = 0; i < m; i++) {
+            int new_node = nodes[i];
+            int LCA = T.lca(new_node, stk.back());
+            if (LCA == stk.back()) {
+                stk.push_back(new_node);
+                continue;
+            } else {
+                while(stk.size() >= 2 && T.dep[stk[stk.size() - 2]] >= T.dep[LCA]) {
+                    int u = stk.back();
+                    int v = stk[stk.size() - 2];
+                    VT_add_edge(u, v);
+                    stk.pop_back();
+                }
+                int u = stk.back();
+                int v = stk[stk.size() - 2];
+                VT_add_edge(LCA, u);
+                stk.pop_back();
+                if (LCA != v) stk.push_back(LCA);
+                stk.push_back(new_node);
+            }
+        }
+        for (int i = 1; i + 1 < stk.size(); i++) {
+            VT_add_edge(stk[i], stk[i + 1]);
+        }
+        N = id_map.size();
+        Root = id[1];
+        for (int i = 2; i <= N; i++) {
+            if (T.dep[i] < T.dep[Root]) {
+                Root = i;
+            }
+        }
+        init();
+    }
+    int get_id(int x) {
+        if (id_map.find(x) == id_map.end()) {
+            int tmp = id_map.size() + 1;
+            id_map[x] = tmp;
+            id[tmp] = x;
+        }
+        return id_map[x];
+    }
+};
+
 int main() {
     int n;
     scanf("%d",&n);
