@@ -10,6 +10,7 @@ struct ShrinkedDAG {
     ShrinkedDAG(){}
     ShrinkedDAG(int _N) : N(_N) {
         e.assign(N + 1, vector<int>());
+        edge_set.clear();
     }
     void add_edge(int u, int v) {
         pii p(u, v);
