@@ -45,8 +45,8 @@ struct RootedTree {
         dfnR[x] = time_tag;
     }
     void init(bool calc_lca = false) {
-        dep[0] = 1;
-        dis_to_root[0] = 0;
+        dep[Root] = 1;
+        dis_to_root[Root] = 0;
         if (calc_lca) anc.assign(N + 1, vector<int>(MAXD, 0));
         int time_tag = 0;
         dfs(Root, 0, calc_lca, time_tag);
@@ -88,7 +88,6 @@ struct VirtualTree : RootedTree {
             return T.dfnL[id1] < T.dfnL[id2];
         });
         vector<int> stk(1, 0);
-        //auto dis_function = bind(unweighted_dis, this);
         auto dis_function = [&](int u, int v) {
             return T.unweighted_dis(u, v);
         };
@@ -108,7 +107,7 @@ struct VirtualTree : RootedTree {
                 stk.push_back(new_node);
                 continue;
             } else {
-                while(stk.size() >= 2 && T.dep[stk[stk.size() - 2]] >= T.dep[LCA]) {
+                while(stk.size() >= 2 && T.dep[stk[stk.size() - 2]] > T.dep[LCA]) {
                     int u = stk.back();
                     int v = stk[stk.size() - 2];
                     VT_add_edge(u, v);
@@ -118,7 +117,9 @@ struct VirtualTree : RootedTree {
                 int v = stk[stk.size() - 2];
                 VT_add_edge(LCA, u);
                 stk.pop_back();
-                if (LCA != v) stk.push_back(LCA);
+                if (LCA != v) {
+                    stk.push_back(LCA);
+                }
                 stk.push_back(new_node);
             }
         }
@@ -126,9 +127,9 @@ struct VirtualTree : RootedTree {
             VT_add_edge(stk[i], stk[i + 1]);
         }
         N = id_map.size();
-        Root = id[1];
+        Root = 1;
         for (int i = 2; i <= N; i++) {
-            if (T.dep[i] < T.dep[Root]) {
+            if (T.dep[id[i]] < T.dep[id[Root]]) {
                 Root = i;
             }
         }
@@ -142,26 +143,69 @@ struct VirtualTree : RootedTree {
         }
         return id_map[x];
     }
+
+    // problem-specified
+    using pii = pair<int,int>;
+    static const int INF = 1e9;
+    pii dfs(int x, vector<int> &ori) {
+        int ret = 0;
+        int cnt = 0;
+        for (auto &t : e[x]) {
+            int to = t.second;
+            if (dep[to] < dep[x]) continue;
+            auto tmp = dfs(to, ori);
+            ret += tmp.first;
+            if (ori[id[x]]) {
+                ret += tmp.second;
+            } else {
+                cnt += tmp.second;
+            }   
+        }
+        if (cnt > 1) {
+            return pii(ret + 1, 0);
+        } else {
+            return pii(ret, ori[id[x]] | cnt);
+        }
+    }
 };
+
+
+//test code for: http://codeforces.com/contest/613/problem/D
 
 int main() {
     int n;
     scanf("%d",&n);
-    RootedTree Tr(n);
+    RootedTree Tree(n);
     for (int i = 0; i < n - 1; i++) {
-        int u, v, w;
-        scanf("%d%d%d",&u,&v,&w);
-        Tr.add_edge(u, v, w);
-    }
-    Tr.init(1);
-    for (int i = 1; i <= n; i++) {
-        printf("%d %d %d\n",Tr.dfn[i],Tr.dfnL[i],Tr.dfnR[i]);
-    }
-    /*
-    while(true) {
         int u, v;
         scanf("%d%d",&u,&v);
-        printf("%d %d %lld\n",Tr.lca(u, v),Tr.weighted_dis(u, v),Tr.unweighted_dis(u, v));
+        Tree.add_edge(u, v);
     }
-    */
+    Tree.init(true);
+    int Q;
+    vector<int> ori(n + 1, 0);
+    scanf("%d",&Q);
+    while(Q--) {
+        int K;
+        scanf("%d",&K);
+        vector<int> nodes(K);
+        for (int i = 0; i < K; i++) {
+            scanf("%d",&nodes[i]);
+            ori[nodes[i]] = 1;
+        }
+        bool ok = true;
+        for (int i = 0; i < K; i++) {
+            if (ori[Tree.fa[nodes[i]]]) ok = false;
+        }
+        if (ok) {
+            VirtualTree V(nodes, Tree);
+            auto ans = V.dfs(V.Root, ori);
+            printf("%d\n",ans.first);
+        } else {
+            puts("-1");
+        }
+        for (int i = 0; i < K; i++) {
+            ori[nodes[i]] = 0;
+        }
+    }
 }
