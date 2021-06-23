@@ -12,6 +12,7 @@ struct RootedTree {
     vector<int> dep; // Root has a dep of 1
     vector<vector<int> > anc; // anc[i][j] is the (2^j) ancestor of i
     vector<int> dfn, dfnL, dfnR;
+    vector<int> size, hson, top; // for heavy-light-decomposite
 
     int N, Root;
     RootedTree() {}
@@ -23,6 +24,8 @@ struct RootedTree {
         dfn.assign(N + 1, 0); // If need multiple dfn, modify to 2 * N + 1?
         dfnL.assign(N + 1, 0);
         dfnR.assign(N + 1, 0);
+        size.assign(N + 1, 0);
+        hson.assign(N + 1, 0);
     }
     void add_edge(int u, int v, len_type w = 1) {
         e[u].push_back(pr(w, v));
@@ -36,11 +39,17 @@ struct RootedTree {
             anc[x][0] = FA;
             for (int i = 1; i < MAXD; i++) anc[x][i] = anc[anc[x][i - 1]][i - 1];
         }
+        size[x] = 1;
+        hson[x] = 0;
         for (auto &t : e[x]) {
             if (t.second == FA) continue;
             dep[t.second] = dep[x] + 1;
             dis_to_root[t.second] = dis_to_root[x] + t.first;
             dfs(t.second, x, calc_lca, time_tag);
+            size[x] += size[t.second];
+            if (hson[x] == 0 || size[t.second] > size[hson[x]]) {
+                hson[x] = t.second;
+            }
         }
         dfnR[x] = time_tag;
     }
@@ -67,6 +76,33 @@ struct RootedTree {
             }
         }
         return anc[u][0];
+    }
+    int K_ancestor(int x, int K) {
+        for (int i = 0; i < MAXD; i++) {
+            if ((K >> i) & 1) x = anc[x][i];
+        }
+        return x;
+    }
+    void hld_dfs(int x, int &time_tag) {
+        dfn[++time_tag] = x;
+        dfnL[x] = time_tag;
+        if (fa[x] && x == hson[fa[x]]) {
+            top[x] = top[fa[x]];
+        } else {
+            top[x] = x;
+        }
+        if (hson[x]) hld_dfs(hson[x], time_tag);
+        for (auto &t : e[x]) {
+            if (t.second != fa[x] && t.second != hson[x]) {
+                hld_dfs(t.second, time_tag);
+            }
+        }
+        dfnR[x] = time_tag;
+    }
+    void heavy_light_decomposite() {
+        // reset dfn
+        int time_tag = 0;
+        hld_dfs(Root, time_tag);
     }
     int unweighted_dis(int u, int v) {
         return dep[u] + dep[v] - 2 * dep[lca(u, v)];
