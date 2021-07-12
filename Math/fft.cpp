@@ -4,6 +4,9 @@ using namespace std;
 typedef long long LL;
 
 struct FFTClass {
+    static constexpr int MAXL=22;
+    static constexpr int MAXN=1<<MAXL;
+    static constexpr double PI = acos(-1);
     struct Complex {
         double R,I;
         Complex(){R = I = 0;}
@@ -11,40 +14,68 @@ struct FFTClass {
         Complex operator + (const Complex &r) {return Complex(R + r.R, I + r.I);}
         Complex operator - (const Complex &r) {return Complex(R - r.R, I - r.I);}
         Complex operator * (const Complex &r) {return Complex(R * r.R - I * r.I, R * r.I + I * r.R);}
+        Complex operator / (const double d) {return Complex(R / d, I / d);}
     };
 
     using vd = vector<double>;
-    static const int MAXN = (1 << 20);
-    void dft() {
-        
+    using vi = vector<int>;
+    int rev[MAXN];
+    Complex a[MAXN], b[MAXN], c[MAXN];
+ 
+    void transform(int n,Complex *t,int typ){
+        for(int i=0;i<n;i++)
+            if(i<rev[i])swap(t[i],t[rev[i]]);
+        for(int step=1;step<n;step<<=1){
+            Complex gn(cos(PI / step), sin(PI / step));
+            //int gn=fast_pow(root,(MOD-1)/(step<<1));
+            for(int i=0;i<n;i+=(step<<1)){
+                Complex g(1, 0);
+                for(int j=0;j<step;j++,g=g*gn){
+                    Complex x=t[i+j],y=g*t[i+j+step];
+                    t[i+j]=x+y;
+                    t[i+j+step]=x-y;
+                }
+            }
+        }
+        if(typ==1)return;
+        for(int i=1;i<n/2;i++)swap(t[i],t[n-i]);
+        for(int i=0;i<n;i++)t[i]=t[i]/n;
     }
-    vd mul(vd a,vd b) {
-        int N1,N2;
-        N1 = a.size();
-        N2 = b.size();
+ 
+    void fft(int p,Complex *A,Complex *B,Complex *C){
+        transform(p,A,1);
+        transform(p,B,1);
+        for(int i=0;i<p;i++)C[i]=A[i]*B[i];
+        transform(p,C,-1);
+    }
+ 
+    void mul(Complex *A,Complex *B,Complex *C,int n,int m) {
+        int p=1,l=0;
+        while(p<=n+m)p<<=1,l++;
+        for (int i=n+1;i<p;i++) A[i] = Complex(0,0);
+        for (int i=m+1;i<p;i++) B[i] = Complex(0,0);
+        for(int i=0;i<p;i++)rev[i]=(rev[i>>1]>>1)|((i&1)<<(l-1));
+        fft(p,A,B,C);
+    }
+
+    vd conv(vd &v1, vd &v2) {
+        int n = v1.size() - 1, m = v2.size() - 1; // degree of poly v1 and v2
+        for (int i = 0; i <= n; i++) a[i] = Complex(v1[i], 0);
+        for (int i = 0; i <= m; i++) b[i] = Complex(v2[i], 0);
+        mul(a, b, c, n, m);
+        vd ret(n + m + 1);
+        for (int i = 0; i < n + m + 1; i++) {
+            ret[i] = c[i].R;
+        }
+        return ret;
     }
 }FFT;
-const int MM = 200000;
-int fac[MM + 10], ifac[MM + 10];
-const int MOD = 998244353;
- 
-LL quick_pow(LL a,LL x) {
-    LL ret = 1;
-    while(x) {
-        if (x & 1) {
-            ret = ret * a % MOD;
-        }
-        a = a * a % MOD;
-        x >>= 1;
-    }
-    return ret;
-}
  
 struct NTTClass{
-    static const int MAXL=22;
-    static const int MAXN=1<<MAXL;
-    static const int root=3;
-    static const int MOD=998244353;
+    static constexpr int MAXL=22;
+    static constexpr int MAXN=1<<MAXL;
+    static constexpr int root=3;
+    static constexpr int MOD=998244353;
     int rev[MAXN];
     int a[MAXN], b[MAXN], c[MAXN];
     using vi = vector<int>;
@@ -109,41 +140,19 @@ struct NTTClass{
     }
 }NTT;
  
-int C(int N, int M) {
-    if (M > N || M < 0) return 0;
-    return 1LL * fac[N] * ifac[M] % MOD * ifac[N - M] % MOD;
-}
- 
-int N, v[400010];
- 
-vector<int>solve(int L, int R) {
-    if (L == R) return {1, v[L]};
-    int mid = (L + R) / 2; 
-    auto v1 = solve(L, mid);
-    auto v2 = solve(mid + 1, R);
-    return NTT.conv(v1, v2);
-}
- 
 int main() {
-    fac[0] = ifac[0] = 1;
-    for (int i=1;i<=MM;i++) {
-        fac[i] = 1LL * fac[i - 1] * i % MOD;
-        ifac[i] = quick_pow(fac[i], MOD - 2);
+    int n, m;
+    scanf("%d%d",&n,&m);
+    n++; m++;
+    vector<double> a(n), b(m);
+    for (int i = 0; i < n; i++) {
+        scanf("%lf",&a[i]);
     }
-    int T;
-    scanf("%d",&T);
-    while(T--) {
-        scanf("%d",&N);
-        for (int i=1;i<=N;i++) {
-            scanf("%d",&v[i]);
-        }
-        auto ret = solve(1, N);
-        int ans = 0;
-        for (int i=1;i<=N;i++) {
-            ans += 1LL * ret[i] * fac[i] % MOD * fac[N - i] % MOD;
-            if (ans >= MOD) ans -= MOD;
-        }
-        ans = 1LL * ans * ifac[N] % MOD;
-        printf("%d\n",ans);
+    for (int i = 0; i < m; i++) {
+        scanf("%lf",&b[i]);
+    }
+    auto c = FFT.conv(a, b);
+    for (int i = 0; i < c.size(); i++) { 
+        printf("%d%c",int(c[i] + 1e-5), " \n"[i==c.size()-1]);
     }
 }
