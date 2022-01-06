@@ -3,10 +3,11 @@
 using namespace std;
 typedef long long LL;
 
-struct FFTClass {
-    static constexpr int MAXL=22;
-    static constexpr int MAXN=1<<MAXL;
-    static constexpr double PI = acos(-1);
+namespace FFT {
+    constexpr int MAXL=22;
+    constexpr int MAXN=1<<MAXL;
+    const double PI = acos(-1);
+    //constexpr double PI = acos(-1);
     struct Complex {
         double R,I;
         Complex(){R = I = 0;}
@@ -69,13 +70,13 @@ struct FFTClass {
         }
         return ret;
     }
-}FFT;
+}
  
-struct NTTClass{
-    static constexpr int MAXL=22;
-    static constexpr int MAXN=1<<MAXL;
-    static constexpr int root=3;
-    static constexpr int MOD=998244353;
+namespace NTT {
+    constexpr int MAXL=22;
+    constexpr int MAXN=1<<MAXL;
+    constexpr int root=3;
+    constexpr int MOD=998244353;
     int rev[MAXN];
     int a[MAXN], b[MAXN], c[MAXN];
     using vi = vector<int>;
@@ -138,7 +139,7 @@ struct NTTClass{
         vi ret(c, c + n + m + 1);
         return ret;
     }
-}NTT;
+}
  
 int main() {
     int n, m;
@@ -151,7 +152,7 @@ int main() {
     for (int i = 0; i < m; i++) {
         scanf("%lf",&b[i]);
     }
-    auto c = FFT.conv(a, b);
+    auto c = FFT::conv(a, b);
     for (int i = 0; i < c.size(); i++) { 
         printf("%d%c",int(c[i] + 1e-5), " \n"[i==c.size()-1]);
     }
