@@ -2,17 +2,17 @@
 
 using namespace std;
 
-class DinicFLow {
+class DinicFlow {
     public:
     const static int MAXN = 100010;
     const static int MAXM = 200010;
-    typedef long long flowtype;
+    typedef long long Flowtype;
     int N, M;
     int S, T;
     int en[MAXM * 2], nxt[MAXM * 2];
     int head[MAXN], cur[MAXN];
-    flowtype f[MAXM * 2];
-    const flowtype FLOW_INF = 1e9;
+    Flowtype f[MAXM * 2];
+    const Flowtype Flow_INF = 1e9;
     void init(int n, int s, int t) {
         N = n;M = 1;
         S = s;T = t;
@@ -55,9 +55,9 @@ class DinicFLow {
         }
         return (d[T] != -1);
     }
-    flowtype dfs(int x, flowtype a) {
+    Flowtype dfs(int x, Flowtype a) {
         if (a == 0 || x == T) return a;
-        flowtype ret = 0;
+        Flowtype ret = 0;
         for (int &i = cur[x]; i; i = nxt[i]) {
             if (d[en[i]] == d[x] + 1 && f[i]) {
                 int nf = dfs(en[i], min(a, f[i]));
@@ -69,10 +69,10 @@ class DinicFLow {
         }
         return ret;
     }
-    flowtype MaxFLow() {
-        flowtype ret = 0;
+    Flowtype MaxFlow() {
+        Flowtype ret = 0;
         while(bfs(S)) {
-            ret += dfs(S, FLOW_INF);
+            ret += dfs(S, Flow_INF);
         }
         return ret;
     }
@@ -87,5 +87,5 @@ int main() {
         scanf("%d%d%d",&u,&v,&w);
         NF.addedge(u, v, w);
     }
-    printf("%lld\n",NF.MaxFLow());
+    printf("%lld\n",NF.MaxFlow());
 }

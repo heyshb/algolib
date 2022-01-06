@@ -100,17 +100,32 @@ struct VBCCGraph : BCCGraph{
     vector<int> is_cut; // size: n + 1
     vector<int> vertex_id; // size: n + 1    the id of VBCC the i-th vertex belongs to; id of cut points are -1
     vector<int> edge_id; // size: m          the id of VBCC the i-th edge belongs to.
+    vector<int> vertex_stack, edge_stack;
 
     VBCCGraph(int _n) : BCCGraph(n) {
         is_cut.assign(n + 1, 0);
         vertex_id.assign(n + 1, 0);
+        vertex_stack.clear();
+        edge_stack.clear();
     }
 
-    void tarjan(int x, int from_edge, int &time_tag) {
+    void tarjan(int x, int from_edge, int &time_tag, int root) {
         time_tag++;
         dfn[x] = low[x] = time_tag;
+        vertex_stk.push_back(x);
+        int cnt = 0;
         for (int i = head[x]; i != -1; i = nxt[i]) {
             if (i == from_edge ^ 1) continue;
+            int to = en[i];
+            if (!dfn[to]) {
+                tarjan(to, i, time_tag, root);                
+                low[x] = min(low[x], low[to]);
+            } else {
+                low[x] = min(low[x], dfn[to]);
+            }
+            if (dfn[x] <= low[to]) {
+                cnt++;
+            }
         }
     }
 
@@ -119,7 +134,7 @@ struct VBCCGraph : BCCGraph{
         int time_tag = 0;
         for (int i = 1; i <= n; i++) {
             if (!dfn[i]) {
-                tarjan(i, -1, time_tag);
+                tarjan(i, -1, time_tag, i);
             }
         }
     }
