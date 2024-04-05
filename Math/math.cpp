@@ -4,7 +4,7 @@ using namespace std;
 
 const int MOD = 1e9 + 7;
 
-typedef long long LL;
+using LL = long long;
 typedef pair<LL,LL> pll;
 typedef pair<int,int> pii;
 

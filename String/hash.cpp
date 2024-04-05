@@ -2,7 +2,7 @@
 
 using namespace std;
 
-typedef long long LL;
+using LL = long long;
 typedef pair<int,int> pii;
 
 //1-base !!

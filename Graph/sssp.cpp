@@ -2,7 +2,7 @@
 
 using namespace std;
 
-typedef long long LL;
+using LL = long long;
 // 1-base
 class SSSPGraph {
 public:

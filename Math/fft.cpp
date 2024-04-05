@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-typedef long long LL;
+using LL = long long;
 
 namespace FFT {
 constexpr int MAXL = 22;
@@ -133,8 +133,8 @@ using vi = vector<int>;
 int fast_pow(int a, int b) {
   int ans = 1;
   while (b) {
-    if (b & 1) ans = 1ll * ans * a % MOD;
-    a = 1ll * a * a % MOD;
+    if (b & 1) ans = 1LL * ans * a % MOD;
+    a = 1LL * a * a % MOD;
     b >>= 1;
   }
   return ans;
@@ -147,8 +147,8 @@ void transform(int n, int* t, int typ) {
     int gn = fast_pow(root, (MOD - 1) / (step << 1));
     for (int i = 0; i < n; i += (step << 1)) {
       int g = 1;
-      for (int j = 0; j < step; j++, g = 1ll * g * gn % MOD) {
-        int x = t[i + j], y = 1ll * g * t[i + j + step] % MOD;
+      for (int j = 0; j < step; j++, g = 1LL * g * gn % MOD) {
+        int x = t[i + j], y = 1LL * g * t[i + j + step] % MOD;
         t[i + j] = (x + y) % MOD;
         t[i + j + step] = (x - y + MOD) % MOD;
       }
@@ -157,13 +157,13 @@ void transform(int n, int* t, int typ) {
   if (typ == 1) return;
   for (int i = 1; i < n / 2; i++) swap(t[i], t[n - i]);
   int inv = fast_pow(n, MOD - 2);
-  for (int i = 0; i < n; i++) t[i] = 1ll * t[i] * inv % MOD;
+  for (int i = 0; i < n; i++) t[i] = 1LL * t[i] * inv % MOD;
 }
 
 void ntt(int p, int* A, int* B, int* C) {
   transform(p, A, 1);
   transform(p, B, 1);
-  for (int i = 0; i < p; i++) C[i] = 1ll * A[i] * B[i] % MOD;
+  for (int i = 0; i < p; i++) C[i] = 1LL * A[i] * B[i] % MOD;
   transform(p, C, -1);
 }
 

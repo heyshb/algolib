@@ -6,13 +6,13 @@ class DinicFlow {
     public:
     const static int MAXN = 100010;
     const static int MAXM = 200010;
-    typedef long long Flowtype;
+    using FlowType = long long;
     int N, M;
     int S, T;
     int en[MAXM * 2], nxt[MAXM * 2];
     int head[MAXN], cur[MAXN];
-    Flowtype f[MAXM * 2];
-    const Flowtype Flow_INF = 1e9;
+    FlowType f[MAXM * 2];
+    const FlowType Flow_INF = 1e9;
     void init(int n, int s, int t) {
         N = n;M = 1;
         S = s;T = t;
@@ -55,9 +55,9 @@ class DinicFlow {
         }
         return (d[T] != -1);
     }
-    Flowtype dfs(int x, Flowtype a) {
+    FlowType dfs(int x, FlowType a) {
         if (a == 0 || x == T) return a;
-        Flowtype ret = 0;
+        FlowType ret = 0;
         for (int &i = cur[x]; i; i = nxt[i]) {
             if (d[en[i]] == d[x] + 1 && f[i]) {
                 int nf = dfs(en[i], min(a, f[i]));
@@ -69,8 +69,8 @@ class DinicFlow {
         }
         return ret;
     }
-    Flowtype MaxFlow() {
-        Flowtype ret = 0;
+    FlowType MaxFlow() {
+        FlowType ret = 0;
         while(bfs(S)) {
             ret += dfs(S, Flow_INF);
         }

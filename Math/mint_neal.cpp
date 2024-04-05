@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-typedef long long LL;
+using LL = long long;
 template<int MOD, int RT> struct mint {
 	static const int mod = MOD;
 	static constexpr mint rt() { return RT; } // primitive root for FFT

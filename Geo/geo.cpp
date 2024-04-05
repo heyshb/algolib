@@ -1,88 +1,107 @@
 #include <bits/stdc++.h>
 
 using namespace std;
+template <typename ValType>
+struct Fraction: public pair<ValType, ValType>{
+    Fraction(){}
+    Fraction(ValType v1, ValType v2): pair<ValType, ValType>(v1, v2) {Normolize();}
+    Fraction(ValType v): pair<ValType, ValType>(v, 1) {}
+	void Normolize() {
+		ValType g = __gcd(x, y);
+		this->first /= g;
+		this->second /= g;
+		if (this->second < 0) {
+			this->first = -this->first;
+			this->second = -this->second;
+		}
+	}
+    Fraction operator+ (const Fraction& rhs) const {
+        ValType x = this->first * rhs.second + this->second * rhs.first;
+        ValType y = this->second * rhs.second;
+		return Fraction(x, y);
+    }
+    Fraction operator- (const Fraction& rhs) const {
+        ValType x = this->first * rhs.second - this->second * rhs.first;
+        ValType y = this->second * rhs.second;
+		return Fraction(x, y);
+    }
+    Fraction operator* (const Fraction& rhs) const {
+        ValType x = this->first * rhs.first;
+        ValType y = this->second * rhs.second;
+		return Fraction(x, y);
+    }
+    Fraction operator/ (const Fraction& rhs) const {
+        ValType x = this->first * rhs.second;
+        ValType y = this->second * rhs.first;
+		return Fraction(x, y);
+    }
+	Fraction operator- () const {
+		return Fraction(-this->first, this->second);
+	}
+	bool operator< (const Fraction& rhs) const {
+		return this->first * rhs.second < this->second * rhs.first;
+	}
+	bool operator<= (const Fraction& rhs) const {
+		return this->first * rhs.second <= this->second * rhs.first;
+	}
+};
 
-typedef double flt;
-const flt eps = 1e-12;
-char cor_buf[50];
-flt cmp(flt a,flt b) {
-	return fabs(a - b) >= eps + fabs(a) * eps ? a - b : 0;
-}
-int sign(flt x) {
-	if (x < -eps) return -1;
-	if (x > eps) return 1;
-	return 0;
-}
-class point {
-public:
-	flt x,y;
-	point(){}
-	point(flt tx,flt ty):x(tx),y(ty) {}
-	void read() {
-		flt tx,ty;
-		scanf("%lf%lf",&tx,&ty);
-		x = tx;
-		y = ty;
+using CoordinateType = Fraction<int>;
+
+struct Point {
+	CoordinateType x, y;
+	Point(){}
+	Point(CoordinateType x, CoordinateType y) : x(x), y(y) {}
+	friend Point operator + (const Point &a, const Point &b) {
+		return Point(a.x + b.x, a.y + b.y);
 	}
-	void print() {
-		printf("(%.5lf,%.5lf)",x,y);
+	friend Point operator - (const Point &a, const Point &b) {
+		return Point(a.x - b.x, a.y - b.y);
 	}
-	void println() {
-		print();
-		puts("");
-	}
-	
-	friend point operator + (const point &a,const point &b) {
-		return point(a.x + b.x, a.y + b.y);
-	}
-	friend point operator - (const point &a, const point &b) {
-		return point(a.x - b.x, a.y - b.y);
-	}
-	friend flt operator % (const point &a, const point &b) { // a·b
+	friend CoordinateType operator % (const Point &a, const Point &b) { // a dot b
 		return a.x * b.x + a.y * b.y;
 	}
-	friend flt operator * (const point &a, const point &b) { // a x b
+	friend CoordinateType operator * (const Point &a, const Point &b) { // a cross b
 		return a.x * b.y - a.y * b.x;
 	}
-	friend point operator - (const point &a) {
-		return point(-a.x, -a.y);
+	friend Point operator - (const Point &a) {
+		return Point(-a.x, -a.y);
 	}
-	friend point operator * (const point &a,flt u) {
-		return point(a.x * u, a.y * u);
+	friend Point operator * (const Point &a, CoordinateType u) {
+		return Point(a.x * u, a.y * u);
 	}
-	friend bool operator == (const point &a,const point &b) {
-		return !cmp(a,b);
+	friend bool operator == (const Point &a, const Point &b) {
+		return a.x == b.x && a.y == b.y;
+	}
+	CoordinateType SqrLen() {
+		return x * x + y * y;
 	}
 };
 
-class cir {
-	point O;
-	flt r;
+struct Seg {
+	Point u, v;
+	Seg(){}
+	Seg(const Point& u, const Point& v) : u(u), v(v) {}
+	CoordinateType SqrLen() {
+		return (v - u).SqrLen();
+	}
 };
 
-flt cmp(const point &a, const point &b) { // if (a == b), return 0, else not 0
-		flt at = cmp(a.x,b.x);
-		return !at?cmp(a.y,b.y):at;
-	}
-flt sqr(point a) {
-	return a.x * a.x + a.y * a.y;
+bool IsParallel(const Seg &s1, const Seg &s2) {
+	return (s1.v - s1.u) * (s2.v - s2.u) == CoordinateType(0);
 }
-flt length(point a) {
-	return sqrt(sqr(a));
+
+bool PointOnSegment(const Point &p, const Seg& s) {
+	return (s.u - p) * (s.v - p) == CoordinateType(0) && (s.u - p) % (s.v - p) <= CoordinateType(0);
+}
+
+// The first value is the number of intersection points. 0 / 1 / 2, 2 for inf.
+// If there are infinity number of intersection points, return the two points that is the endpoints of the intersection.
+tuple<int, Point, Point> Intersect(const Seg &s1, const Seg &s2) {
+	if (IsParallel(s1, s2)) return {0, Point(), Point()};
+	Point p1 = s1.u, p2 = s1.v, p3 = s2.u, p4 = s2.v;
+	// TODO
 }
 
 int main() {
-	point p1,p2;
-	p1.read();
-	p2.read();
-	point p;
-	p = p1 + p2;
-	p.println();
-	p = p1 - p2;
-	p.println();
-	double ret;
-	ret = p1 * p2;
-	printf("%.5lf\n",ret);
-	ret = p1 % p2;
-	printf("%.5lf\n",ret);
 }
