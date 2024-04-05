@@ -8,7 +8,7 @@ struct Fraction: public pair<ValType, ValType>{
     Fraction(ValType v1, ValType v2): pair<ValType, ValType>(v1, v2) {Normolize();}
     Fraction(ValType v): pair<ValType, ValType>(v, 1) {}
 	void Normolize() {
-		ValType g = __gcd(x, y);
+		ValType g = __gcd(this->first, this->second);
 		this->first /= g;
 		this->second /= g;
 		if (this->second < 0) {
@@ -36,14 +36,20 @@ struct Fraction: public pair<ValType, ValType>{
         ValType y = this->second * rhs.first;
 		return Fraction(x, y);
     }
-	Fraction operator- () const {
+	Fraction operator - () const {
 		return Fraction(-this->first, this->second);
 	}
-	bool operator< (const Fraction& rhs) const {
+	bool operator < (const Fraction& rhs) const {
 		return this->first * rhs.second < this->second * rhs.first;
 	}
-	bool operator<= (const Fraction& rhs) const {
+	bool operator <= (const Fraction& rhs) const {
 		return this->first * rhs.second <= this->second * rhs.first;
+	}
+	bool operator > (const Fraction& rhs) const {
+		return this->first * rhs.second > this->second * rhs.first;
+	}
+	bool operator >= (const Fraction& rhs) const {
+		return this->first * rhs.second >= this->second * rhs.first;
 	}
 };
 
